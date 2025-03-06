@@ -34,7 +34,7 @@ end
 function Deposit(id, amount)
     if framework == "esx" then
         local xPlayer = ESX.GetPlayerFromId(id)
-        if xPlayer.getAccount("bank").money >= amount then
+        if xPlayer.getAccount("money").money >= amount then
             xPlayer.removeMoney(amount)
             xPlayer.addAccountMoney("bank", amount)
             return true
@@ -44,17 +44,21 @@ function Deposit(id, amount)
     end
 end
 
-function Transfer(id, target, amount)
+function Transfer(id,target, amount)
     if framework == "esx" then
-        if not GetPlayerName(target) then return false end
+        print(id)
+        print(target)
+        print(amount)
+        -- if not GetPlayerName(target) then return false end
         local xPlayer = ESX.GetPlayerFromId(id)
         local xTarget = ESX.GetPlayerFromId(target)
-        if xPlayer.getAccount("bank").money >= amount then
+        if xPlayer.getAccount("money").money >= amount then
             xPlayer.removeAccountMoney("bank", amount)
             xTarget.addAccountMoney("bank", amount)
-            return true
+            TriggerClientEvent('esx:showNotification', id, "transferiste "..amount.."$ a "..xTarget.getName())
+            TriggerClientEvent('esx:showNotification', target, "recibiste una de "..amount.."$ por parte de "..xPlayer.getName())
         else
-            return false
+            -- return false
         end
     end
 end
@@ -75,6 +79,8 @@ lib.callback.register('wx_banking:deposit', function(source, amount)
     return Deposit(source, amount) or false
 end)
 
-lib.callback.register('wx_banking:transfer', function(source, target, amount)
-    return Transfer(source, target, amount) or false
+
+RegisterServerEvent('wx_banking:transfer')
+AddEventHandler('wx_banking:transfer', function(jugador2, cantidad)
+    Transfer(source,jugador2,cantidad)
 end)
