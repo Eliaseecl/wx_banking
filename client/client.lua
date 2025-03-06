@@ -9,12 +9,12 @@ end
 
 function Withdraw()
     local balance = lib.callback.await('wx_banking:getBalance')
-    local withdraw = lib.inputDialog('Withdraw',
+    local withdraw = lib.inputDialog('Retirar',
         {
             {
                 type = 'number',
-                label = 'Amount',
-                description = 'What amount do you want to withdraw?',
+                label = 'Cantidad',
+                description = 'Cuanto quieres retirar?',
                 required = true,
                 min = 1,
                 max = balance
@@ -32,12 +32,12 @@ end
 
 function Deposit()
     local balance = lib.callback.await('wx_banking:getCash')
-    local deposit = lib.inputDialog('Deposit',
+    local deposit = lib.inputDialog('Depositar',
         {
             {
                 type = 'number',
-                label = 'Amount',
-                description = 'What amount do you want to deposit?',
+                label = 'Cantidad',
+                description = 'Cuanto quieres depositar?',
                 required = true,
                 min = 1,
                 max = balance
@@ -47,7 +47,7 @@ function Deposit()
     if not deposit then return end
     local success = lib.callback.await('wx_banking:deposit', false, deposit[1])
     if success then
-        Notify(("You have successfully deposited %s$"):format(deposit[1]))
+        Notify(("Depositaste %s$ al banco"):format(deposit[1]))
     else
         Notify("Couldn't deposit")
     end
@@ -55,7 +55,8 @@ end
 
 function Transfer()
     local balance = lib.callback.await('wx_banking:getBalance')
-    local transfer = lib.inputDialog('Transfer',
+    print(balance)
+    local idotro = lib.inputDialog('Transfer',
         {
             {
                 type = 'number',
@@ -64,23 +65,26 @@ function Transfer()
                 required = true,
                 min = 1,
             },
-            {
-                type = 'number',
-                label = 'Amount',
-                description = 'What amount do you want to transfer?',
-                required = true,
-                min = 1,
-                max = balance
-            },
         }
     )
-    if not transfer then return end
-    local success = lib.callback.await('wx_banking:tranfer', transfer[1], transfer[2])
-    if success then
-        Notify(("You have successfully transfered %s$ to %s"):format(transfer[1], GetPlayerName(transfer[1])))
-    else
-        Notify("Couldn't transfer")
-    end
+
+    local cantidad = lib.inputDialog('Transfer',
+        {
+            {
+                type = 'number',
+                label = 'Cantidad',
+                description = 'Cuanto quieres transferir?',
+                required = true,
+                min = 1,
+                max = balance,
+            },
+        }
+        
+    )
+
+    -- if not transfer then return end
+    -- print(json.encode(transfer))
+    TriggerServerEvent('wx_banking:transfer', idotro[1], cantidad[1])
 end
 
 function Blip(x, y, z, sprite, name)
@@ -106,37 +110,37 @@ CreateThread(function()
                 {
                     name = "open_bank",
                     icon = 'fa-solid fa-building-columns',
-                    label = "Open Bank",
+                    label = "Abrir Banco",
                     distance = 2.0,
                     onSelect = function()
                         local balance = lib.callback.await('wx_banking:getBalance')
                         lib.registerContext({
                             id = 'open_bank',
-                            title = 'Bank',
+                            title = 'BANCO',
                             options = {
                                 {
                                     title = ('Balance: %s$'):format(balance),
                                     icon = "money-check-dollar",
                                 },
                                 {
-                                    title = 'Deposit',
-                                    description = "Click to deposit money to your account",
+                                    title = 'Depositar',
+                                    description = "Haga click para depositar dinero en su cuenta",
                                     onSelect = function()
                                         Deposit()
                                     end,
                                     icon = "hand-holding-dollar",
                                 },
                                 {
-                                    title = 'Withdraw',
-                                    description = "Click to withdraw money from your account",
+                                    title = 'Retirar',
+                                    description = "Haga click para retirar dinero de su cuenta",
                                     onSelect = function()
                                         Withdraw()
                                     end,
                                     icon = "wallet",
                                 },
                                 {
-                                    title = 'Transfer',
-                                    description = "Click to transfer money from your account to another person",
+                                    title = 'Transferir',
+                                    description = "Haga click para transferir dinero desde su cuenta a otra persona",
                                     onSelect = function()
                                         Transfer()
                                     end,
@@ -146,7 +150,7 @@ CreateThread(function()
                         })
                         lib.progressBar({
                             duration = 2000,
-                            label = 'Opening bank',
+                            label = 'Abriendo Banco',
                             useWhileDead = false,
                             canCancel = false,
                             disable = {
@@ -185,7 +189,7 @@ CreateThread(function()
                         icon = "money-check-dollar",
                     },
                     {
-                        title = 'Withdraw',
+                        title = 'Retirar',
                         description = "Click to withdraw money from your account",
                         onSelect = function()
                             Withdraw()
@@ -196,7 +200,7 @@ CreateThread(function()
             })
             lib.progressBar({
                 duration = 2000,
-                label = 'Opening ATM',
+                label = 'Abriendo Cajero',
                 useWhileDead = false,
                 canCancel = false,
                 disable = {
@@ -237,7 +241,7 @@ CreateThread(function()
                                     icon = "money-check-dollar",
                                 },
                                 {
-                                    title = 'Withdraw',
+                                    title = 'Retirar',
                                     description = "Click to withdraw money from your account",
                                     onSelect = function()
                                         Withdraw()
@@ -248,7 +252,7 @@ CreateThread(function()
                         })
                         lib.progressBar({
                             duration = 2000,
-                            label = 'Opening ATM',
+                            label = 'Abriendo Cajero',
                             useWhileDead = false,
                             canCancel = false,
                             disable = {
